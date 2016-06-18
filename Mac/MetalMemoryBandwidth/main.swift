@@ -39,11 +39,11 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
         print(device);
     }
     
-    let defaultDevice : MTLDevice = devices[0];
+    let defaultDevice : MTLDevice = MTLCreateSystemDefaultDevice()!;
     print("default device = ", defaultDevice);
     
     // create the buffers
-    let resourceOptions: MTLResourceOptions = MTLResourceOptions.StorageModeShared
+    let resourceOptions: MTLResourceOptions = MTLResourceOptions.StorageModeManaged
     let arrayBuffer1 = defaultDevice.newBufferWithBytes(array1, length: N * sizeof(Float), options: resourceOptions)
     let arrayBuffer2 = defaultDevice.newBufferWithBytes(array2, length: N * sizeof(Float), options: resourceOptions)
     let sumBuffer = defaultDevice.newBufferWithBytes(sumArray, length: N * sizeof(Float), options: resourceOptions)
@@ -72,7 +72,7 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
     let timeStart = NSDate()
     let generateCommandBuffersStart: NSDate = NSDate()
     
-    let iterations = 100
+    let iterations = 1000
     var lastCommandBuffer: MTLCommandBuffer? = nil
     for _ in 0..<iterations {
         
