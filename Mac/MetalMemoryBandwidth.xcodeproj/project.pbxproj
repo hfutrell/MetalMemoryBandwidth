@@ -8,23 +8,27 @@
 
 /* Begin PBXBuildFile section */
 		FDA238221D14F42A00B66D78 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FDA238211D14F42A00B66D78 /* Metal.framework */; };
+		FDA238241D15D02800B66D78 /* addfunction.metal in Sources */ = {isa = PBXBuildFile; fileRef = FDA238231D15D02800B66D78 /* addfunction.metal */; };
+		FDA238251D15D11D00B66D78 /* addfunction.metal in CopyFiles */ = {isa = PBXBuildFile; fileRef = FDA238231D15D02800B66D78 /* addfunction.metal */; };
 		FDBF397A1D14E93000C83118 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDBF39791D14E93000C83118 /* main.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		FDBF39741D14E93000C83118 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
+				FDA238251D15D11D00B66D78 /* addfunction.metal in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		FDA238211D14F42A00B66D78 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		FDA238231D15D02800B66D78 /* addfunction.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = addfunction.metal; sourceTree = "<group>"; };
 		FDBF39761D14E93000C83118 /* MetalMemoryBandwidth */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MetalMemoryBandwidth; sourceTree = BUILT_PRODUCTS_DIR; };
 		FDBF39791D14E93000C83118 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -62,6 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				FDBF39791D14E93000C83118 /* main.swift */,
+				FDA238231D15D02800B66D78 /* addfunction.metal */,
 			);
 			path = MetalMemoryBandwidth;
 			sourceTree = "<group>";
@@ -124,6 +129,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FDBF397A1D14E93000C83118 /* main.swift in Sources */,
+				FDA238241D15D02800B66D78 /* addfunction.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

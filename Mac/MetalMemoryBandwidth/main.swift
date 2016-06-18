@@ -35,7 +35,17 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
     
     let commandEncoder = commandBuffer.computeCommandEncoder();
     
-    let myAdditionFunction: MTLFunction;
+    let library : MTLLibrary?;
+    
+    do {
+        let source : String = try String(contentsOfFile: "./addFunction.metal" )
+        library = try defaultDevice.newLibraryWithSource(source, options: nil) // do we need compile options?
+    }
+    catch _ {
+        print("error creating library ...");
+        return;
+    }
+    let myAdditionFunction: MTLFunction = library!.newFunctionWithName("myAddFunction")!;
     
     let computePipelineState: MTLComputePipelineState?
     do {
@@ -52,11 +62,9 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
     // WARNING: NOT DONE YET
     // 2 Specify resources that hold the input data (or output destination) for the compute function. Set the location (index) of each resource in its corresponding argument table.
     let resourceOptions: MTLResourceOptions = MTLResourceOptions(); // todo: this is probably messed up
-    let arrayBuffer1 = defaultDevice.newBufferWithBytes(array1, length: N * 4, options: resourceOptions)
-    let arrayBuffer2 = defaultDevice.newBufferWithBytes(array2, length: N * 4, options: resourceOptions)
-    let sumBuffer = defaultDevice.newBufferWithBytes(sumArray, length: N * 4, options: resourceOptions)
-
-    
+    let arrayBuffer1 = defaultDevice.newBufferWithBytes(array1, length: N * sizeof(Float), options: resourceOptions)
+    let arrayBuffer2 = defaultDevice.newBufferWithBytes(array2, length: N * sizeof(Float), options: resourceOptions)
+    let sumBuffer = defaultDevice.newBufferWithBytes(sumArray, length: N * sizeof(Float), options: resourceOptions)
     
     commandEncoder.setBuffer(arrayBuffer1, offset: 0, atIndex: 0);
     commandEncoder.setBuffer(arrayBuffer2, offset: 0, atIndex: 1);
@@ -77,11 +85,22 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
     
     commandBuffer.waitUntilScheduled();
 
+    let timeStart = NSDate()
+
     print("command buffer scheduled");
     
     commandBuffer.waitUntilCompleted();
     
     print("command buffer complete.");
+    
+    let timeInterval: Double = NSDate().timeIntervalSinceDate(timeStart)
+    let bytesPerSecond : Double = (Double(3 * N * sizeof(Float))) / Double(timeInterval)
+    let gBytesPerSecond : Double = bytesPerSecond / 1024.0 / 1024.0 / 1024.0
+    
+    print("took ", timeInterval, " seconds")
+    print("bytes per second: ", bytesPerSecond)
+    print("GB per second: ", gBytesPerSecond)
+
     if (commandBuffer.status == MTLCommandBufferStatus.Error) {
         if (commandBuffer.error != nil) {
             print("command buffer failed with error: ", commandBuffer.error)
@@ -91,11 +110,16 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
         }
     }
     
+    let output : UnsafeMutablePointer<Float> = UnsafeMutablePointer<Float>(sumBuffer.contents())
+    
+    sumArray = Array(UnsafeBufferPointer(start: output, count: N));
+    
+    
 }
 
 // create an array of random floats
 
-var N : Int = 1024 * 1024;
+var N : Int = 1024 * 1024 * 10;
 
 print("Running test with N = ", N);
 
