@@ -45,20 +45,27 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
         print("error with compute pipeline state ...");
         return;
     }
-        
-    commandEncoder.setComputePipelineState(computePipelineState!); // 1. Call the setComputePipelineState(_:) method with the MTLComputePipelineState object that contains the compute function that will be executed.
+    
+    // 1. Call the setComputePipelineState(_:) method with the MTLComputePipelineState object that contains the compute function that will be executed.
+    commandEncoder.setComputePipelineState(computePipelineState!);
     
     // WARNING: NOT DONE YET
     // 2 Specify resources that hold the input data (or output destination) for the compute function. Set the location (index) of each resource in its corresponding argument table.
-    
+    let resourceOptions: MTLResourceOptions = MTLResourceOptions(); // todo: this is probably messed up
+    let arrayBuffer1 = defaultDevice.newBufferWithLength(N * 4, options: resourceOptions);
+    let arrayBuffer2 = defaultDevice.newBufferWithLength(N * 4, options: resourceOptions);
+    let sumBuffer = defaultDevice.newBufferWithLength(N * 4, options: resourceOptions);
+
+    commandEncoder.setBuffer(arrayBuffer1, offset: 0, atIndex: 0);
+    commandEncoder.setBuffer(arrayBuffer2, offset: 0, atIndex: 1);
+    commandEncoder.setBuffer(sumBuffer, offset: 0, atIndex: 2);
+
     // 3. Call the dispatchThreadgroups(_:threadsPerThreadgroup:) method to encode the compute function with a specified number of threadgroups for the grid and the number of threads per threadgroup.
     let threadsPerThreadgroup: MTLSize = MTLSizeMake(256, 1, 1); // a decent guess
     commandEncoder.dispatchThreadgroups(MTLSizeMake(N / threadsPerThreadgroup.width, 1, 1), threadsPerThreadgroup: threadsPerThreadgroup)
     
     // 4. Call endEncoding() to finish encoding the compute commands onto the command buffer.
     commandEncoder.endEncoding();
-
-
     
     
     commandBuffer.enqueue();
