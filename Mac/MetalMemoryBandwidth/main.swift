@@ -26,6 +26,62 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
         print(device);
     }
     
+    let defaultDevice : MTLDevice = MTLCreateSystemDefaultDevice()!;
+    print("default device = ", defaultDevice);
+    
+    let commandQueue = defaultDevice.newCommandQueue();
+    
+    let commandBuffer = commandQueue.commandBuffer();
+    
+    let commandEncoder = commandBuffer.computeCommandEncoder();
+    
+    let myAdditionFunction: MTLFunction;
+    
+    let computePipelineState: MTLComputePipelineState?
+    do {
+        computePipelineState = try defaultDevice.newComputePipelineStateWithFunction(myAdditionFunction);
+    }
+    catch _ {
+        print("error with compute pipeline state ...");
+        return;
+    }
+        
+    commandEncoder.setComputePipelineState(computePipelineState!); // 1. Call the setComputePipelineState(_:) method with the MTLComputePipelineState object that contains the compute function that will be executed.
+    
+    // WARNING: NOT DONE YET
+    // 2 Specify resources that hold the input data (or output destination) for the compute function. Set the location (index) of each resource in its corresponding argument table.
+    
+    // 3. Call the dispatchThreadgroups(_:threadsPerThreadgroup:) method to encode the compute function with a specified number of threadgroups for the grid and the number of threads per threadgroup.
+    let threadsPerThreadgroup: MTLSize = 256; // a decent guess
+    commandEncoder.dispatchThreadgroups(N / threadsPerThreadgroup, threadsPerThreadgroup: threadsPerThreadgroup)
+    
+    // 4. Call endEncoding() to finish encoding the compute commands onto the command buffer.
+    commandEncoder.endEncoding();
+
+
+    
+    
+    commandBuffer.enqueue();
+    commandBuffer.commit(); // causes the command buffer to be executed as soon as possible
+    
+    print("command buffer committed");
+    
+    commandBuffer.waitUntilScheduled();
+
+    print("command buffer scheduled");
+    
+    commandBuffer.waitUntilCompleted();
+    
+    print("command buffer complete.");
+    if (commandBuffer.status == MTLCommandBufferStatus.Error) {
+        if (commandBuffer.error != nil) {
+            print("command buffer failed with error: ", commandBuffer.error)
+        }
+        else {
+            print("command buffer failed")
+        }
+    }
+    
 }
 
 // create an array of random floats
