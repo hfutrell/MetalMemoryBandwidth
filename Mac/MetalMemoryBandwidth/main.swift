@@ -52,10 +52,12 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
     // WARNING: NOT DONE YET
     // 2 Specify resources that hold the input data (or output destination) for the compute function. Set the location (index) of each resource in its corresponding argument table.
     let resourceOptions: MTLResourceOptions = MTLResourceOptions(); // todo: this is probably messed up
-    let arrayBuffer1 = defaultDevice.newBufferWithLength(N * 4, options: resourceOptions);
-    let arrayBuffer2 = defaultDevice.newBufferWithLength(N * 4, options: resourceOptions);
-    let sumBuffer = defaultDevice.newBufferWithLength(N * 4, options: resourceOptions);
+    let arrayBuffer1 = defaultDevice.newBufferWithBytes(array1, length: N * 4, options: resourceOptions)
+    let arrayBuffer2 = defaultDevice.newBufferWithBytes(array2, length: N * 4, options: resourceOptions)
+    let sumBuffer = defaultDevice.newBufferWithBytes(sumArray, length: N * 4, options: resourceOptions)
 
+    
+    
     commandEncoder.setBuffer(arrayBuffer1, offset: 0, atIndex: 0);
     commandEncoder.setBuffer(arrayBuffer2, offset: 0, atIndex: 1);
     commandEncoder.setBuffer(sumBuffer, offset: 0, atIndex: 2);
