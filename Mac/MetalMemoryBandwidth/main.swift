@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MetalKit
 
 func randomFloat() -> Float {
     return Float(arc4random()) / Float(UINT32_MAX);
@@ -16,6 +17,15 @@ func computeSumCPU(array1 array1 : [Float], array2 : [Float], inout sumArray : [
     for i in 0..<N {
         sumArray[i] = array1[i] + array2[i];
     }
+}
+
+func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray : [Float], N : Int) {
+    
+    let devices: [MTLDevice] = MTLCopyAllDevices();
+    for device in devices {
+        print(device);
+    }
+    
 }
 
 // create an array of random floats
@@ -37,7 +47,7 @@ for i in 0..<N {
 
 // compute sum
 
-computeSumCPU(array1: floatArray1, array2: floatArray2, sumArray: &sumArray, N: N);
+computeSumMetal(array1: floatArray1, array2: floatArray2, sumArray: &sumArray, N: N);
 
 // verify sum
 

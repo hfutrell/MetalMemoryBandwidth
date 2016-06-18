@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FDA238221D14F42A00B66D78 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FDA238211D14F42A00B66D78 /* Metal.framework */; };
 		FDBF397A1D14E93000C83118 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDBF39791D14E93000C83118 /* main.swift */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +24,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FDA238211D14F42A00B66D78 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		FDBF39761D14E93000C83118 /* MetalMemoryBandwidth */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MetalMemoryBandwidth; sourceTree = BUILT_PRODUCTS_DIR; };
 		FDBF39791D14E93000C83118 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -32,6 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FDA238221D14F42A00B66D78 /* Metal.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,6 +44,7 @@
 		FDBF396D1D14E93000C83118 = {
 			isa = PBXGroup;
 			children = (
+				FDA238211D14F42A00B66D78 /* Metal.framework */,
 				FDBF39781D14E93000C83118 /* MetalMemoryBandwidth */,
 				FDBF39771D14E93000C83118 /* Products */,
 			);
@@ -241,6 +245,7 @@
 				FDBF397F1D14E93000C83118 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
