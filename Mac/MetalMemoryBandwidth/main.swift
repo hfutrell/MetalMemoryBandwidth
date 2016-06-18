@@ -52,8 +52,8 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
     // 2 Specify resources that hold the input data (or output destination) for the compute function. Set the location (index) of each resource in its corresponding argument table.
     
     // 3. Call the dispatchThreadgroups(_:threadsPerThreadgroup:) method to encode the compute function with a specified number of threadgroups for the grid and the number of threads per threadgroup.
-    let threadsPerThreadgroup: MTLSize = 256; // a decent guess
-    commandEncoder.dispatchThreadgroups(N / threadsPerThreadgroup, threadsPerThreadgroup: threadsPerThreadgroup)
+    let threadsPerThreadgroup: MTLSize = MTLSizeMake(256, 1, 1); // a decent guess
+    commandEncoder.dispatchThreadgroups(MTLSizeMake(N / threadsPerThreadgroup.width, 1, 1), threadsPerThreadgroup: threadsPerThreadgroup)
     
     // 4. Call endEncoding() to finish encoding the compute commands onto the command buffer.
     commandEncoder.endEncoding();
