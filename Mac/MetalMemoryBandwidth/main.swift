@@ -19,6 +19,19 @@ func computeSumCPU(array1 array1 : [Float], array2 : [Float], inout sumArray : [
     }
 }
 
+func generateLibrary(device: MTLDevice) -> MTLLibrary {
+    let library : MTLLibrary?;
+    do {
+        let source : String = try String(contentsOfFile: "./addFunction.metal" )
+        library = try device.newLibraryWithSource(source, options: nil) // do we need compile options?
+    }
+    catch _ {
+        print("error creating library ...");
+        library = nil
+    }
+    return library!
+}
+
 func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray : [Float], N : Int) {
     
     let devices: [MTLDevice] = MTLCopyAllDevices();
@@ -30,22 +43,12 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
     print("default device = ", defaultDevice);
     
     let commandQueue = defaultDevice.newCommandQueue();
-    
     let commandBuffer = commandQueue.commandBuffer();
-    
     let commandEncoder = commandBuffer.computeCommandEncoder();
     
-    let library : MTLLibrary?;
+    let library: MTLLibrary = generateLibrary(defaultDevice)
     
-    do {
-        let source : String = try String(contentsOfFile: "./addFunction.metal" )
-        library = try defaultDevice.newLibraryWithSource(source, options: nil) // do we need compile options?
-    }
-    catch _ {
-        print("error creating library ...");
-        return;
-    }
-    let myAdditionFunction: MTLFunction = library!.newFunctionWithName("myAddFunction")!;
+    let myAdditionFunction: MTLFunction = library.newFunctionWithName("myAddFunction")!;
     
     let computePipelineState: MTLComputePipelineState?
     do {
@@ -55,13 +58,13 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
         print("error with compute pipeline state ...");
         return;
     }
-    
+
     // 1. Call the setComputePipelineState(_:) method with the MTLComputePipelineState object that contains the compute function that will be executed.
     commandEncoder.setComputePipelineState(computePipelineState!);
     
-    // WARNING: NOT DONE YET
     // 2 Specify resources that hold the input data (or output destination) for the compute function. Set the location (index) of each resource in its corresponding argument table.
-    let resourceOptions: MTLResourceOptions = MTLResourceOptions(); // todo: this is probably messed up
+    let resourceOptions: MTLResourceOptions = MTLResourceOptions.StorageModeManaged
+    
     let arrayBuffer1 = defaultDevice.newBufferWithBytes(array1, length: N * sizeof(Float), options: resourceOptions)
     let arrayBuffer2 = defaultDevice.newBufferWithBytes(array2, length: N * sizeof(Float), options: resourceOptions)
     let sumBuffer = defaultDevice.newBufferWithBytes(sumArray, length: N * sizeof(Float), options: resourceOptions)
@@ -71,8 +74,9 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
     commandEncoder.setBuffer(sumBuffer, offset: 0, atIndex: 2);
 
     // 3. Call the dispatchThreadgroups(_:threadsPerThreadgroup:) method to encode the compute function with a specified number of threadgroups for the grid and the number of threads per threadgroup.
-    let threadsPerThreadgroup: MTLSize = MTLSizeMake(256, 1, 1); // a decent guess
-    commandEncoder.dispatchThreadgroups(MTLSizeMake(N / threadsPerThreadgroup.width, 1, 1), threadsPerThreadgroup: threadsPerThreadgroup)
+    let threadsPerThreadgroup: MTLSize = MTLSizeMake(256, 1, 1) // a decent guess
+    let threadGroups: MTLSize = MTLSizeMake(N / threadsPerThreadgroup.width, 1, 1)
+    commandEncoder.dispatchThreadgroups(threadGroups, threadsPerThreadgroup: threadsPerThreadgroup)
     
     // 4. Call endEncoding() to finish encoding the compute commands onto the command buffer.
     commandEncoder.endEncoding();
@@ -114,12 +118,11 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
     
     sumArray = Array(UnsafeBufferPointer(start: output, count: N));
     
-    
 }
 
 // create an array of random floats
 
-var N : Int = 1024 * 1024 * 10;
+var N : Int = 1024 * 1024 * 20;
 
 print("Running test with N = ", N);
 
