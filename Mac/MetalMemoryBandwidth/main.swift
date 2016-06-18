@@ -72,9 +72,9 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
     let timeStart = NSDate()
     let generateCommandBuffersStart: NSDate = NSDate()
     
-    let iterations = 1000
+    let iterations = 500
     var lastCommandBuffer: MTLCommandBuffer? = nil
-    for _ in 0..<iterations {
+    for i in 0..<iterations {
         
         let commandBuffer = commandQueue.commandBuffer();
         let commandEncoder = commandBuffer.computeCommandEncoder();
@@ -94,11 +94,20 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
         commandEncoder.endEncoding();
         
         commandBuffer.enqueue();
-        commandBuffer.commit(); // causes the command buffer to be executed as soon as possible
         
+        if ( i == iterations-1) {
+            lastCommandBuffer = commandBuffer
+            // last command buffer gets a blit encoder
+            // to synchronize on the sum memory
+            // otherwise the CPU can't read it
+            let blitCommandEncoder = commandBuffer.blitCommandEncoder()
+            blitCommandEncoder.synchronizeResource(sumBuffer)
+            blitCommandEncoder.endEncoding();
+        }
+        
+        commandBuffer.commit(); // causes the command buffer to be executed as soon as possible
         commandBuffer.waitUntilScheduled()
         
-        lastCommandBuffer = commandBuffer
     }
     
     print("took ", NSDate().timeIntervalSinceDate(generateCommandBuffersStart), " seconds");
@@ -106,16 +115,16 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
     lastCommandBuffer!.waitUntilCompleted();
     print("command buffer complete.");
     
-//    if (lastCommandBuffer!.status == MTLCommandBufferStatus.Error) {
-//        if (lastCommandBuffer!.error != nil) {
-//            print("command buffer failed with error: ", lastCommandBuffer!.error)
-//        }
-//        else {
-//            print("command buffer failed")
-//            
-//        }
-//        return
-//    }
+    if (lastCommandBuffer!.status == MTLCommandBufferStatus.Error) {
+        if (lastCommandBuffer!.error != nil) {
+            print("command buffer failed with error: ", lastCommandBuffer!.error)
+        }
+        else {
+            print("command buffer failed")
+            
+        }
+        return
+    }
     
     let timeInterval: Double = NSDate().timeIntervalSinceDate(timeStart)
     let bytesPerSecond : Double = (Double(iterations * 3 * N * sizeof(Float))) / Double(timeInterval)
@@ -127,14 +136,13 @@ func computeSumMetal(array1 array1 : [Float], array2 : [Float], inout sumArray :
 
     
     let output : UnsafeMutablePointer<Float> = UnsafeMutablePointer<Float>(sumBuffer.contents())
-    
     sumArray = Array(UnsafeBufferPointer(start: output, count: N));
     
 }
 
 // create an array of random floats
 
-var N : Int = 1024 * 1024 * 10;
+var N : Int = 1024 * 1024 * 32;
 
 print("Running test with N = ", N);
 
@@ -158,7 +166,7 @@ computeSumMetal(array1: floatArray1, array2: floatArray2, sumArray: &sumArray, N
 var success = true;
 for i in 0..<N {
     if sumArray[i] != floatArray1[i] + floatArray2[i] {
-        print("sum failed at index", i);
+        print("sum failed at index", i, "(got ", sumArray[i], ", expected ", floatArray1[i] + floatArray2[i], ")");
         success = false;
         break;
     }
